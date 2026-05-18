@@ -1,0 +1,18 @@
+# Rust
+target
+
+# Local Stellar settings
+.soroban
+.stellar
+
+# JavaScript
+node_modules
+dist
+.env
+npm-debug.log*
+.DS_Store
+
+# Keep generated contract package output for the frontend file dependency.
+!frontend/packages/grantpulse/dist/
+!frontend/packages/grantpulse/dist/**
+
