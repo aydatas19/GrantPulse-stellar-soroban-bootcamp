@@ -153,7 +153,7 @@ label span,
 .scoreboard {
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
 .scoreboard div,
@@ -174,6 +174,118 @@ label span,
 
 .scoreboard strong {
   font-size: 1.35rem;
+  overflow-wrap: anywhere;
+}
+
+.paymentPanel {
+  gap: 18px;
+}
+
+.paymentMeta,
+.paymentGrid,
+.paymentActions {
+  display: grid;
+  gap: 12px;
+}
+
+.paymentMeta {
+  grid-template-columns: 1fr 1fr;
+}
+
+.paymentMeta div {
+  display: grid;
+  gap: 6px;
+}
+
+.paymentMeta span,
+.txResult span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.paymentMeta strong,
+.txResult strong {
+  overflow-wrap: anywhere;
+}
+
+.paymentGrid {
+  grid-template-columns: minmax(0, 1.35fr) minmax(180px, 0.65fr);
+}
+
+.paymentActions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.paymentActions button {
+  background: var(--ink);
+  color: #fff;
+  padding: 0 14px;
+}
+
+.paymentActions button:first-child {
+  background: var(--green);
+}
+
+.paymentActions button:nth-child(2) {
+  background: var(--blue);
+}
+
+.paymentActions button:nth-child(3) {
+  background: var(--amber);
+}
+
+.txResult {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  gap: 12px;
+  min-height: 58px;
+  padding: 12px;
+}
+
+.txResult > svg {
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+
+.txResult div {
+  display: grid;
+  gap: 4px;
+}
+
+.txResult.success {
+  border-color: rgba(20, 132, 90, 0.35);
+  background: rgba(20, 132, 90, 0.08);
+}
+
+.txResult.success > svg {
+  color: var(--green);
+}
+
+.txResult.error {
+  border-color: rgba(211, 75, 66, 0.35);
+  background: rgba(211, 75, 66, 0.08);
+}
+
+.txResult.error > svg {
+  color: var(--coral);
+}
+
+.txResult a {
+  color: inherit;
+  font-weight: 800;
+  justify-content: flex-start;
+  min-height: auto;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+}
+
+.txResult a:hover {
+  box-shadow: none;
+  transform: none;
 }
 
 .workspace {
@@ -353,6 +465,11 @@ input:focus {
   .grantStats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .paymentGrid,
+  .paymentActions {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 620px) {
@@ -362,6 +479,7 @@ input:focus {
 
   .scoreboard,
   .workspace,
+  .paymentMeta,
   .fieldGrid,
   .buttonRow,
   .reviewRow,
@@ -375,4 +493,3 @@ input:focus {
     display: none;
   }
 }
-
