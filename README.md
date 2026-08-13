@@ -71,6 +71,18 @@ get_total_grants() -> u32
 - Contract ID: `CDNCS5MQUHT2XAOITMC74U7SKKDHQ4WJMEDNLLKFSMESSOK3SSNNFMWV`
 - Explorer: <https://stellar.expert/explorer/testnet/contract/CDNCS5MQUHT2XAOITMC74U7SKKDHQ4WJMEDNLLKFSMESSOK3SSNNFMWV>
 
+## Level 2 Submission Evidence
+
+- Public repository: <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp>
+- Live demo: optional, not deployed yet
+- Meaningful commits: 5 total commits after this Level 2 evidence update
+- Wallet options screenshot: `docs/screenshots/wallet-options-available.png`
+- Deployed contract address: `CDNCS5MQUHT2XAOITMC74U7SKKDHQ4WJMEDNLLKFSMESSOK3SSNNFMWV`
+- Contract call transaction hash: `1f49394a95040b8c3ac1651f8727b4346eee33e21e5e5c674d9d1654b611f485`
+- Contract call Explorer link: <https://stellar.expert/explorer/testnet/tx/1f49394a95040b8c3ac1651f8727b4346eee33e21e5e5c674d9d1654b611f485>
+- Contract call function: `create_grant`
+- Contract call grant ID: `level2-evidence-20260813-2119`
+
 ## Tech Stack
 
 - Stellar Soroban smart contract
@@ -156,15 +168,17 @@ If the recipient account does not exist yet, the app uses a Stellar `createAccou
 
 ## Submission Screenshots
 
-Add final screenshots from your own Freighter test to these paths before submitting:
+Level 2 wallet options screenshot:
 
-![Wallet connected state](docs/screenshots/wallet-connected.png)
+![Wallet options available](docs/screenshots/wallet-options-available.png)
 
-![Balance displayed](docs/screenshots/balance-displayed.png)
+Additional Level 1 test screenshot paths:
 
-![Successful testnet transaction](docs/screenshots/successful-testnet-transaction.png)
+- `docs/screenshots/wallet-connected.png`
+- `docs/screenshots/balance-displayed.png`
+- `docs/screenshots/successful-testnet-transaction.png`
 
-The third screenshot should show the transaction result panel with the Stellar Testnet transaction hash.
+The successful transaction screenshot should show the transaction result panel with the Stellar Testnet transaction hash.
 
 ## Visual Concept
 

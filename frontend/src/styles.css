@@ -177,6 +177,49 @@ label span,
   overflow-wrap: anywhere;
 }
 
+.walletPanel {
+  gap: 14px;
+}
+
+.walletOptions {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.walletOption {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(92px, auto) auto;
+  min-height: 58px;
+  padding: 12px 14px;
+  text-align: left;
+}
+
+.walletOption strong,
+.walletOption span {
+  overflow-wrap: anywhere;
+}
+
+.walletOption span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.walletOption.connected {
+  border-color: rgba(20, 132, 90, 0.35);
+  background: rgba(20, 132, 90, 0.08);
+}
+
+.walletOption.connected > svg:last-child {
+  color: var(--green);
+}
+
 .paymentPanel {
   gap: 18px;
 }
@@ -467,7 +510,8 @@ input:focus {
   }
 
   .paymentGrid,
-  .paymentActions {
+  .paymentActions,
+  .walletOptions {
     grid-template-columns: 1fr;
   }
 }
@@ -480,6 +524,7 @@ input:focus {
   .scoreboard,
   .workspace,
   .paymentMeta,
+  .walletOption,
   .fieldGrid,
   .buttonRow,
   .reviewRow,

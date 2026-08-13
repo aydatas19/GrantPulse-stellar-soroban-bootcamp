@@ -1,5 +1,6 @@
-Place the final Level 1 submission screenshots in this folder:
+Place the final submission screenshots in this folder:
 
+- `wallet-options-available.png`
 - `wallet-connected.png`
 - `balance-displayed.png`
 - `successful-testnet-transaction.png`

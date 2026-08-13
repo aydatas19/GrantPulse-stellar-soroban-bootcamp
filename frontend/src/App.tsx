@@ -659,6 +659,27 @@ export default function App() {
         </div>
       </section>
 
+      <section className="panel walletPanel">
+        <div className="panelTitle">
+          <Wallet size={21} />
+          <h2>Wallet Options</h2>
+        </div>
+
+        <div className="walletOptions">
+          <button
+            className={connected ? "walletOption connected" : "walletOption"}
+            onClick={connected ? refreshWalletBalance : connectWallet}
+            disabled={isBusy}
+            title="Freighter wallet"
+          >
+            {isBusy ? <Loader2 className="spin" size={18} /> : <Wallet size={18} />}
+            <strong>Freighter</strong>
+            <span>{connected ? walletLabel : "Available"}</span>
+            {connected ? <CheckCircle2 size={18} /> : <ExternalLink size={18} />}
+          </button>
+        </div>
+      </section>
+
       <section className="panel paymentPanel">
         <div className="panelTitle">
           <Coins size={21} />
