@@ -18,6 +18,19 @@ GrantPulse is a Stellar Soroban dApp for tracking mini grants, hackathon project
 
 GrantPulse lets a project owner create an on-chain grant record with a title, requested amount, and milestone count. The owner can mark milestones as completed, archive the grant, and show progress publicly. Reviewers can connect their Freighter wallet and approve or reject a grant once. The smart contract stores the grant owner, grant ID, requested amount, milestone progress, review counts, timestamps, and active status.
 
+The frontend also includes the Level 1 White Belt wallet flow: connect Freighter on Stellar Testnet, disconnect the wallet, fund the connected testnet account with Friendbot, display the native XLM balance, and send a testnet XLM transaction with success or failure feedback.
+
+## Level 1 White Belt Features
+
+- Freighter wallet connection and disconnect controls.
+- Stellar Testnet network validation before wallet, balance, grant, and payment actions.
+- Friendbot funding button for the connected Testnet wallet.
+- Native XLM balance lookup through Horizon Testnet.
+- XLM transfer form with recipient address and amount inputs.
+- Payment transaction signing through Freighter and submission to Horizon Testnet.
+- Transaction result panel with success or failure state and a Stellar Expert transaction hash link.
+- Beginner-friendly error handling for invalid addresses, invalid amounts, unfunded source accounts, and new recipient accounts.
+
 ## Vision
 
 GrantPulse helps small teams prove progress without relying only on private forms or spreadsheets. A bootcamp, hackathon, or community program can use it to show which projects exist, how far they have moved, and how reviewers responded. It gives new builders a practical way to learn wallet authorization, smart contract storage, and public verification while creating a funding workflow that feels useful in real life.
@@ -28,7 +41,7 @@ GrantPulse helps small teams prove progress without relying only on private form
 2. Add `create_grant(owner, grant_id, title, requested_amount, milestone_count)` with wallet authorization and duplicate protection.
 3. Add `complete_milestone(owner, grant_id, status)` and `archive_grant(owner, grant_id)` for owner-controlled progress updates.
 4. Add `review_grant(reviewer, owner, grant_id, approved)` so reviewers can approve or reject once.
-5. Build a React frontend with Freighter wallet connection, grant creation, progress updates, review buttons, and verification cards.
+5. Build a React frontend with Freighter wallet connection, Testnet XLM balance display, XLM payment flow, grant creation, progress updates, review buttons, and verification cards.
 6. Test, build, generate TypeScript bindings, deploy to Stellar Testnet, and connect the deployed contract ID to the frontend.
 
 ## Smart Contract
@@ -69,6 +82,8 @@ get_total_grants() -> u32
 - Stellar Testnet
 
 ## Installation
+
+Before running the dApp, install the Freighter browser extension and switch it to Stellar Testnet.
 
 Install the Soroban target:
 
@@ -119,6 +134,37 @@ Open:
 ```bash
 http://localhost:4328
 ```
+
+Optional frontend environment override:
+
+```bash
+VITE_HORIZON_URL=https://horizon-testnet.stellar.org
+```
+
+## How to Test Level 1
+
+1. Open the app locally and click `Connect`.
+2. Approve the Freighter request with a Testnet account selected.
+3. Confirm the dashboard shows the connected wallet and XLM balance.
+4. Click `Fund Testnet` if the wallet needs testnet XLM.
+5. Enter a recipient Testnet public key and an XLM amount.
+6. Click `Send XLM`, approve the Freighter signature request, and wait for the result panel.
+7. Open the transaction hash link to verify the transaction on Stellar Expert Testnet.
+8. Click `Disconnect` to clear the wallet session from the UI.
+
+If the recipient account does not exist yet, the app uses a Stellar `createAccount` operation instead of a payment operation. In that case, send at least `1 XLM`.
+
+## Submission Screenshots
+
+Add final screenshots from your own Freighter test to these paths before submitting:
+
+![Wallet connected state](docs/screenshots/wallet-connected.png)
+
+![Balance displayed](docs/screenshots/balance-displayed.png)
+
+![Successful testnet transaction](docs/screenshots/successful-testnet-transaction.png)
+
+The third screenshot should show the transaction result panel with the Stellar Testnet transaction hash.
 
 ## Visual Concept
 
