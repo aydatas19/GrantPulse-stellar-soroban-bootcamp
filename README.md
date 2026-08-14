@@ -74,14 +74,32 @@ get_total_grants() -> u32
 ## Level 2 Submission Evidence
 
 - Public repository: <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp>
-- Live demo: optional, not deployed yet
-- Meaningful commits: 5 total commits after this Level 2 evidence update
+- Live demo: <https://aydatas19.github.io/GrantPulse-stellar-soroban-bootcamp/>
+- Meaningful commits: 11 total commits on `main` after the Level 3 evidence update
 - Wallet options screenshot: `docs/screenshots/wallet-options-available.png`
 - Deployed contract address: `CDNCS5MQUHT2XAOITMC74U7SKKDHQ4WJMEDNLLKFSMESSOK3SSNNFMWV`
 - Contract call transaction hash: `1f49394a95040b8c3ac1651f8727b4346eee33e21e5e5c674d9d1654b611f485`
 - Contract call Explorer link: <https://stellar.expert/explorer/testnet/tx/1f49394a95040b8c3ac1651f8727b4346eee33e21e5e5c674d9d1654b611f485>
 - Contract call function: `create_grant`
 - Contract call grant ID: `level2-evidence-20260813-2119`
+
+## Level 3 Submission Evidence
+
+- Public GitHub repository: <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp>
+- Live demo link: <https://aydatas19.github.io/GrantPulse-stellar-soroban-bootcamp/>
+- Contract deployment address: `CDNCS5MQUHT2XAOITMC74U7SKKDHQ4WJMEDNLLKFSMESSOK3SSNNFMWV`
+- Contract interaction transaction hash: `1f49394a95040b8c3ac1651f8727b4346eee33e21e5e5c674d9d1654b611f485`
+- Contract interaction Explorer link: <https://stellar.expert/explorer/testnet/tx/1f49394a95040b8c3ac1651f8727b4346eee33e21e5e5c674d9d1654b611f485>
+- CI/CD pipeline run: <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp/actions/runs/31785070761>
+- Demo video link: [GrantPulse Level 3 demo video](docs/demo/grantpulse-level3-demo.webm)
+
+Level 3 screenshots:
+
+![Mobile responsive UI](docs/screenshots/mobile-responsive-ui.png)
+
+![CI/CD pipeline running](docs/screenshots/cicd-pages-pipeline.png)
+
+![Test output with 4 passing tests](docs/screenshots/test-output-4-passing.png)
 
 ## Tech Stack
 
@@ -174,6 +192,9 @@ Level 2 wallet options screenshot:
 
 Additional Level 1 test screenshot paths:
 
+- `docs/screenshots/mobile-responsive-ui.png`
+- `docs/screenshots/cicd-pages-pipeline.png`
+- `docs/screenshots/test-output-4-passing.png`
 - `docs/screenshots/wallet-connected.png`
 - `docs/screenshots/balance-displayed.png`
 - `docs/screenshots/successful-testnet-transaction.png`

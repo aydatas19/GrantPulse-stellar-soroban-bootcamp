@@ -1,6 +1,9 @@
 Place the final submission screenshots in this folder:
 
 - `wallet-options-available.png`
+- `mobile-responsive-ui.png`
+- `cicd-pages-pipeline.png`
+- `test-output-4-passing.png`
 - `wallet-connected.png`
 - `balance-displayed.png`
 - `successful-testnet-transaction.png`
