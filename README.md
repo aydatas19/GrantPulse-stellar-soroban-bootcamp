@@ -103,6 +103,38 @@ Level 3 screenshots:
 
 ![Test output with 4 passing tests](docs/screenshots/test-output-4-passing.png)
 
+## Level 4 Green Belt Readiness
+
+GrantPulse now includes a production-readiness layer for Level 4 validation:
+
+- In-app Level 4 Validation panel for wallet sessions, wallet-backed interactions, proof hashes, feedback count, runtime errors, and latest telemetry events.
+- Runtime error monitoring for browser errors and unhandled promise rejections.
+- Local analytics storage with optional `VITE_ANALYTICS_ENDPOINT` forwarding.
+- In-app user feedback collection with optional `VITE_FEEDBACK_ENDPOINT` forwarding.
+- Evidence export as JSON from the live app.
+- GitHub Pages production deployment workflow in `.github/workflows/deploy-pages.yml`.
+
+Level 4 submission links and files:
+
+- Public GitHub repository: <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp>
+- Live demo link: <https://aydatas19.github.io/GrantPulse-stellar-soroban-bootcamp/>
+- Contract deployment address: `CDNCS5MQUHT2XAOITMC74U7SKKDHQ4WJMEDNLLKFSMESSOK3SSNNFMWV`
+- Contract Explorer link: <https://stellar.expert/explorer/testnet/contract/CDNCS5MQUHT2XAOITMC74U7SKKDHQ4WJMEDNLLKFSMESSOK3SSNNFMWV>
+- Level 4 checklist: `docs/submission/level4-checklist.md`
+- Production ops notes: `docs/submission/level4-production-ops.md`
+- Real wallet interaction template: `docs/submission/level4-user-wallet-interactions.csv`
+- User feedback summary template: `docs/submission/level4-feedback-summary.md`
+- Product UI screenshot: `docs/screenshots/level4-product-ui.png`
+- Mobile responsive screenshot: `docs/screenshots/level4-mobile-responsive-ui.png`
+- Analytics and monitoring screenshot: `docs/screenshots/level4-analytics-monitoring.png`
+
+Before final Level 4 submission, replace the placeholder evidence files with:
+
+- 10+ real user wallet interaction rows with Stellar Expert transaction URLs.
+- A feedback summary based on real tester responses.
+- A new Level 4 demo video link.
+- Updated screenshots for product UI, mobile responsive UI, and analytics/monitoring setup.
+
 ## Tech Stack
 
 - Stellar Soroban smart contract

@@ -7,5 +7,9 @@ Place the final submission screenshots in this folder:
 - `wallet-connected.png`
 - `balance-displayed.png`
 - `successful-testnet-transaction.png`
+- `level4-product-ui.png`
+- `level4-mobile-responsive-ui.png`
+- `level4-analytics-monitoring.png`
+- `level4-wallet-proof.png`
 
-Capture these after connecting Freighter on Stellar Testnet and sending a real testnet XLM transaction.
+Capture Level 4 screenshots from the deployed app after connecting Freighter on Stellar Testnet, creating or reviewing a grant, collecting feedback, and exporting evidence.
