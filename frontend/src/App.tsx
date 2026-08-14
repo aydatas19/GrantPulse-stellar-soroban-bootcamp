@@ -1,24 +1,31 @@
 import {
+  Activity,
   Archive,
   BadgeCheck,
   BarChart3,
   CheckCircle2,
   CircleDollarSign,
+  ClipboardCheck,
   Coins,
+  Download,
   ExternalLink,
   FileCheck2,
   LogOut,
   Loader2,
+  MessageSquare,
+  MonitorCheck,
   RefreshCw,
   Rocket,
   Send,
   ShieldCheck,
+  Star,
   ThumbsDown,
   ThumbsUp,
+  Users,
   Wallet,
   XCircle,
 } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getAddress,
   getNetworkDetails,
@@ -41,9 +48,23 @@ import {
   NETWORK_PASSPHRASE,
 } from "./lib/grantpulse";
 import type { Grant } from "./lib/grantpulse";
+import {
+  addFeedbackEntry,
+  addTelemetryEvent,
+  buildEvidenceBundle,
+  extractTransactionHash,
+  forwardFeedbackEntry,
+  forwardTelemetryEvent,
+  installRuntimeMonitoring,
+  readFeedbackEntries,
+  readTelemetryEvents,
+  summarizeEvidence,
+} from "./lib/telemetry";
+import type { FeedbackEntry, TelemetryEvent } from "./lib/telemetry";
 
 const explorerUrl = `https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}`;
 const labUrl = `https://lab.stellar.org/r/testnet/contract/${CONTRACT_ID}`;
+const liveDemoUrl = "https://aydatas19.github.io/GrantPulse-stellar-soroban-bootcamp/";
 const HORIZON_URL =
   import.meta.env.VITE_HORIZON_URL ?? "https://horizon-testnet.stellar.org";
 
@@ -167,6 +188,18 @@ export default function App() {
   const [status, setStatus] = useState("Connect Freighter to start");
   const [error, setError] = useState("");
   const [isBusy, setIsBusy] = useState(false);
+  const [telemetryEvents, setTelemetryEvents] = useState<TelemetryEvent[]>(() =>
+    readTelemetryEvents(),
+  );
+  const [feedbackEntries, setFeedbackEntries] = useState<FeedbackEntry[]>(() =>
+    readFeedbackEntries(),
+  );
+  const [feedbackRole, setFeedbackRole] = useState("Builder");
+  const [feedbackRating, setFeedbackRating] = useState("8");
+  const [feedbackComment, setFeedbackComment] = useState("");
+  const [feedbackBlocker, setFeedbackBlocker] = useState("");
+  const [feedbackTxHash, setFeedbackTxHash] = useState("");
+  const [feedbackStatus, setFeedbackStatus] = useState("No feedback yet");
 
   const connected = Boolean(address);
   const walletLabel = connected ? shortAddress(address) : "Not connected";
@@ -184,6 +217,66 @@ export default function App() {
   const grantActive = Boolean(activeGrant?.active);
   const ownerDisplay = activeGrant?.owner ? shortAddress(activeGrant.owner) : "-";
   const progressWidth = `${Math.min(progress, 100)}%`;
+  const evidenceSummary = useMemo(
+    () => summarizeEvidence(telemetryEvents, feedbackEntries),
+    [feedbackEntries, telemetryEvents],
+  );
+  const recentEvents = telemetryEvents.slice(0, 5);
+  const validationSteps = useMemo(
+    () => [
+      {
+        label: "Wallet",
+        done: connected,
+      },
+      {
+        label: "On-chain write",
+        done: telemetryEvents.some(
+          (event) => event.status === "success" && event.name.startsWith("contract_"),
+        ),
+      },
+      {
+        label: "Feedback",
+        done: feedbackEntries.length > 0,
+      },
+      {
+        label: "10 wallets",
+        done: evidenceSummary.uniqueWallets >= 10,
+      },
+      {
+        label: "Proof hashes",
+        done: evidenceSummary.proofHashes >= 10,
+      },
+    ],
+    [connected, evidenceSummary.proofHashes, evidenceSummary.uniqueWallets, feedbackEntries.length, telemetryEvents],
+  );
+
+  const recordEvent = useCallback(
+    (input: Omit<TelemetryEvent, "id" | "createdAt">) => {
+      const { event, events } = addTelemetryEvent({
+        contractId: CONTRACT_ID,
+        wallet: address || undefined,
+        ...input,
+      });
+      setTelemetryEvents(events);
+      void forwardTelemetryEvent(event).catch(() => undefined);
+      return event;
+    },
+    [address],
+  );
+
+  useEffect(() => {
+    const { event, events } = addTelemetryEvent({
+      contractId: CONTRACT_ID,
+      name: "session_started",
+      label: "Session started",
+      status: "info",
+      details: "GrantPulse frontend opened",
+    });
+    setTelemetryEvents(events);
+    void forwardTelemetryEvent(event).catch(() => undefined);
+
+    return installRuntimeMonitoring(setTelemetryEvents);
+  }, []);
 
   const ensureTestnet = useCallback(async () => {
     const networkDetails = await getNetworkDetails();
@@ -278,18 +371,33 @@ export default function App() {
         message: "Wallet connected and ready for a testnet payment",
       });
       setStatus("Wallet connected");
+      recordEvent({
+        name: "wallet_connected",
+        label: "Wallet connected",
+        status: "success",
+        wallet: walletAddress,
+        details: "Freighter access granted on Stellar Testnet",
+      });
     } catch (nextError) {
+      const message = readError(nextError);
       setAddress("");
       setLookupOwner("");
       setXlmBalance("");
-      setError(readError(nextError));
+      setError(message);
       setStatus("Wallet connection failed");
+      recordEvent({
+        name: "wallet_connect_failed",
+        label: "Wallet connect failed",
+        status: "error",
+        details: message,
+      });
     } finally {
       setIsBusy(false);
     }
   }
 
   function disconnectWallet() {
+    const previousAddress = address;
     setAddress("");
     setLookupOwner("");
     setGrantCount(0);
@@ -300,6 +408,12 @@ export default function App() {
     });
     setError("");
     setStatus("Wallet disconnected");
+    recordEvent({
+      name: "wallet_disconnected",
+      label: "Wallet disconnected",
+      status: "info",
+      wallet: previousAddress || undefined,
+    });
   }
 
   async function refreshWalletBalance() {
@@ -313,9 +427,21 @@ export default function App() {
       await ensureTestnet();
       await refreshBalance(address);
       setStatus("XLM balance refreshed");
+      recordEvent({
+        name: "wallet_balance_refreshed",
+        label: "Balance refreshed",
+        status: "success",
+      });
     } catch (nextError) {
-      setError(readError(nextError));
+      const message = readError(nextError);
+      setError(message);
       setStatus("Balance refresh failed");
+      recordEvent({
+        name: "wallet_balance_refresh_failed",
+        label: "Balance refresh failed",
+        status: "error",
+        details: message,
+      });
     } finally {
       setIsBusy(false);
     }
@@ -335,9 +461,21 @@ export default function App() {
       await refreshBalance(address);
       await refreshStats(address);
       setStatus("Testnet wallet funded");
+      recordEvent({
+        name: "friendbot_funded",
+        label: "Friendbot funded wallet",
+        status: "success",
+      });
     } catch (nextError) {
-      setError(readError(nextError));
+      const message = readError(nextError);
+      setError(message);
       setStatus("Testnet funding failed");
+      recordEvent({
+        name: "friendbot_funding_failed",
+        label: "Friendbot funding failed",
+        status: "error",
+        details: message,
+      });
     } finally {
       setIsBusy(false);
     }
@@ -420,6 +558,13 @@ export default function App() {
         operation: operationLabel,
       });
       setStatus("XLM transaction succeeded");
+      recordEvent({
+        name: "wallet_payment_sent",
+        label: operationLabel,
+        status: "success",
+        txHash: submitted.hash,
+        details: `${amount} XLM to ${shortAddress(destination)}`,
+      });
     } catch (nextError) {
       const message = readError(nextError);
       setError(message);
@@ -428,6 +573,12 @@ export default function App() {
         message,
       });
       setStatus("XLM transaction failed");
+      recordEvent({
+        name: "wallet_payment_failed",
+        label: "XLM transaction failed",
+        status: "error",
+        details: message,
+      });
     } finally {
       setIsBusy(false);
     }
@@ -450,6 +601,7 @@ export default function App() {
         milestone_count: numberValue(milestoneCount, 1),
       });
       const sent = await tx.signAndSend();
+      const txHash = extractTransactionHash(sent);
 
       setGrantCount(Number(sent.result));
       setLookupOwner(address);
@@ -457,9 +609,28 @@ export default function App() {
       await readGrant(address, cleanGrantId);
       await refreshStats(address);
       setStatus("Grant record created");
+      recordEvent({
+        name: "contract_create_grant",
+        label: "Grant created",
+        status: "success",
+        grantId: cleanGrantId,
+        txHash,
+        details: `${title.trim() || "Untitled Grant"} requested ${numberValue(
+          requestedAmount,
+          1000,
+        )}`,
+      });
     } catch (nextError) {
-      setError(readError(nextError));
+      const message = readError(nextError);
+      setError(message);
       setStatus("Grant could not be created");
+      recordEvent({
+        name: "contract_create_grant_failed",
+        label: "Grant create failed",
+        status: "error",
+        grantId: grantId.trim() || "grant-untitled",
+        details: message,
+      });
     } finally {
       setIsBusy(false);
     }
@@ -480,19 +651,37 @@ export default function App() {
         status: nextStatus.trim() || "Milestone updated",
       });
       const sent = await tx.signAndSend();
+      const savedMilestone = Number(sent.result);
+      const txHash = extractTransactionHash(sent);
 
-      if (Number(sent.result) === 0) {
+      if (savedMilestone === 0) {
         setStatus("No active grant found");
       } else {
-        setStatus(`Milestone ${Number(sent.result)} saved`);
+        setStatus(`Milestone ${savedMilestone} saved`);
       }
 
       setLookupOwner(address);
       setLookupGrantId(cleanGrantId);
       await readGrant(address, cleanGrantId);
+      recordEvent({
+        name: "contract_complete_milestone",
+        label: savedMilestone === 0 ? "Milestone skipped" : "Milestone saved",
+        status: savedMilestone === 0 ? "info" : "success",
+        grantId: cleanGrantId,
+        txHash,
+        details: nextStatus.trim() || "Milestone updated",
+      });
     } catch (nextError) {
-      setError(readError(nextError));
+      const message = readError(nextError);
+      setError(message);
       setStatus("Milestone could not be saved");
+      recordEvent({
+        name: "contract_complete_milestone_failed",
+        label: "Milestone failed",
+        status: "error",
+        grantId: grantId.trim() || "grant-untitled",
+        details: message,
+      });
     } finally {
       setIsBusy(false);
     }
@@ -516,18 +705,36 @@ export default function App() {
         approved,
       });
       const sent = await tx.signAndSend();
+      const accepted = Boolean(sent.result);
+      const txHash = extractTransactionHash(sent);
 
       setStatus(
-        Boolean(sent.result)
+        accepted
           ? approved
             ? "Reviewer approval saved"
             : "Reviewer rejection saved"
           : "Review was not accepted",
       );
       await readGrant(owner, id);
+      recordEvent({
+        name: approved ? "contract_review_approved" : "contract_review_rejected",
+        label: accepted ? (approved ? "Review approved" : "Review rejected") : "Review skipped",
+        status: accepted ? "success" : "info",
+        grantId: id,
+        txHash,
+        details: `Owner ${shortAddress(owner)}`,
+      });
     } catch (nextError) {
-      setError(readError(nextError));
+      const message = readError(nextError);
+      setError(message);
       setStatus("Review could not be saved");
+      recordEvent({
+        name: "contract_review_failed",
+        label: "Review failed",
+        status: "error",
+        grantId: id,
+        details: message,
+      });
     } finally {
       setIsBusy(false);
     }
@@ -547,14 +754,31 @@ export default function App() {
         grant_id: cleanGrantId,
       });
       const sent = await tx.signAndSend();
+      const archived = Boolean(sent.result);
+      const txHash = extractTransactionHash(sent);
 
-      setStatus(Boolean(sent.result) ? "Grant archived" : "No active grant found");
+      setStatus(archived ? "Grant archived" : "No active grant found");
       setLookupOwner(address);
       setLookupGrantId(cleanGrantId);
       await readGrant(address, cleanGrantId);
+      recordEvent({
+        name: "contract_archive_grant",
+        label: archived ? "Grant archived" : "Archive skipped",
+        status: archived ? "success" : "info",
+        grantId: cleanGrantId,
+        txHash,
+      });
     } catch (nextError) {
-      setError(readError(nextError));
+      const message = readError(nextError);
+      setError(message);
       setStatus("Grant could not be archived");
+      recordEvent({
+        name: "contract_archive_grant_failed",
+        label: "Archive failed",
+        status: "error",
+        grantId: grantId.trim() || "grant-untitled",
+        details: message,
+      });
     } finally {
       setIsBusy(false);
     }
@@ -581,11 +805,100 @@ export default function App() {
       setProgress(Number(progressTx.result));
       setStatus(grantTx.result.active ? "Grant verified" : "Grant inactive or missing");
     } catch (nextError) {
-      setError(readError(nextError));
+      const message = readError(nextError);
+      setError(message);
       setStatus("Grant lookup failed");
+      recordEvent({
+        name: "grant_lookup_failed",
+        label: "Grant lookup failed",
+        status: "error",
+        grantId: id,
+        details: message,
+      });
     } finally {
       setIsBusy(false);
     }
+  }
+
+  async function submitFeedback() {
+    const comment = feedbackComment.trim();
+    if (!comment) {
+      setFeedbackStatus("Feedback comment is required");
+      return;
+    }
+
+    setIsBusy(true);
+    setError("");
+
+    const rating = Math.min(10, Math.max(1, Number(feedbackRating) || 8));
+    const txHash = feedbackTxHash.trim();
+    const { feedback, entries } = addFeedbackEntry({
+      role: feedbackRole,
+      rating,
+      comment,
+      blocker: feedbackBlocker.trim() || undefined,
+      txHash: txHash || undefined,
+      wallet: address || undefined,
+    });
+
+    setFeedbackEntries(entries);
+    setFeedbackComment("");
+    setFeedbackBlocker("");
+    setFeedbackTxHash("");
+
+    try {
+      recordEvent({
+        name: "feedback_submitted",
+        label: "Feedback submitted",
+        status: "success",
+        txHash: txHash || undefined,
+        details: `${feedbackRole} rating ${rating}/10`,
+      });
+      const forwarded = await forwardFeedbackEntry(feedback);
+      setFeedbackStatus(forwarded ? "Feedback sent" : "Feedback saved locally");
+    } catch (nextError) {
+      const message = readError(nextError);
+      setError(message);
+      setFeedbackStatus("Feedback saved locally; sync failed");
+      recordEvent({
+        name: "feedback_sync_failed",
+        label: "Feedback sync failed",
+        status: "error",
+        details: message,
+      });
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  function exportEvidence() {
+    const payload = buildEvidenceBundle({
+      contractId: CONTRACT_ID,
+      explorerUrl,
+      labUrl,
+      liveDemoUrl,
+      events: telemetryEvents,
+      feedback: feedbackEntries,
+    });
+    const blob = new Blob([payload], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `grantpulse-level4-evidence-${new Date()
+      .toISOString()
+      .slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+
+    recordEvent({
+      name: "evidence_exported",
+      label: "Evidence exported",
+      status: "success",
+      details: `${telemetryEvents.length} events and ${feedbackEntries.length} feedback entries`,
+    });
+    setFeedbackStatus("Evidence exported");
   }
 
   return (
@@ -757,6 +1070,154 @@ export default function App() {
             ) : null}
           </div>
         </div>
+      </section>
+
+      <section className="level4Grid">
+        <section className="panel validationPanel">
+          <div className="panelTitle">
+            <MonitorCheck size={21} />
+            <h2>Level 4 Validation</h2>
+          </div>
+
+          <div className="metricStrip">
+            <div>
+              <span>Wallets</span>
+              <strong>{evidenceSummary.uniqueWallets}/10</strong>
+            </div>
+            <div>
+              <span>Interactions</span>
+              <strong>{evidenceSummary.walletInteractions}</strong>
+            </div>
+            <div>
+              <span>Proof Hashes</span>
+              <strong>{evidenceSummary.proofHashes}</strong>
+            </div>
+            <div>
+              <span>Feedback</span>
+              <strong>{evidenceSummary.feedbackCount}</strong>
+            </div>
+            <div>
+              <span>Errors</span>
+              <strong>{evidenceSummary.errorCount}</strong>
+            </div>
+          </div>
+
+          <div className="launchList">
+            {validationSteps.map((step) => (
+              <div className={step.done ? "done" : ""} key={step.label}>
+                {step.done ? <CheckCircle2 size={17} /> : <Activity size={17} />}
+                <span>{step.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="eventList">
+            <div className="eventListHeader">
+              <Activity size={17} />
+              <span>
+                Analytics {evidenceSummary.analyticsMode} / Feedback{" "}
+                {evidenceSummary.feedbackMode}
+              </span>
+            </div>
+            {recentEvents.length ? (
+              recentEvents.map((event) => (
+                <div className={`eventRow ${event.status}`} key={event.id}>
+                  <span>{new Date(event.createdAt).toLocaleTimeString("en")}</span>
+                  <strong>{event.label}</strong>
+                  <em>{event.txHash ? shortAddress(event.txHash) : event.grantId || "-"}</em>
+                </div>
+              ))
+            ) : (
+              <div className="eventRow">
+                <span>-</span>
+                <strong>No events yet</strong>
+                <em>-</em>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="panel feedbackPanel">
+          <div className="panelTitle">
+            <MessageSquare size={21} />
+            <h2>User Feedback</h2>
+          </div>
+
+          <div className="fieldGrid">
+            <label>
+              <span>Role</span>
+              <select value={feedbackRole} onChange={(event) => setFeedbackRole(event.target.value)}>
+                <option>Builder</option>
+                <option>Reviewer</option>
+                <option>Founder</option>
+                <option>Tester</option>
+              </select>
+            </label>
+            <label>
+              <span>Rating {feedbackRating}/10</span>
+              <input
+                max="10"
+                min="1"
+                type="range"
+                value={feedbackRating}
+                onChange={(event) => setFeedbackRating(event.target.value)}
+              />
+            </label>
+          </div>
+
+          <label>
+            <span>Feedback</span>
+            <textarea
+              value={feedbackComment}
+              onChange={(event) => setFeedbackComment(event.target.value)}
+              placeholder="What worked, what felt unclear, what should change?"
+            />
+          </label>
+
+          <label>
+            <span>Blocker</span>
+            <input
+              value={feedbackBlocker}
+              onChange={(event) => setFeedbackBlocker(event.target.value)}
+              placeholder="Optional"
+            />
+          </label>
+
+          <label>
+            <span>Wallet Tx Hash</span>
+            <input
+              value={feedbackTxHash}
+              onChange={(event) => setFeedbackTxHash(event.target.value)}
+              placeholder="Optional proof hash"
+            />
+          </label>
+
+          <div className="feedbackActions">
+            <button onClick={submitFeedback} disabled={isBusy} title="Submit feedback">
+              {isBusy ? <Loader2 className="spin" size={18} /> : <MessageSquare size={18} />}
+              <span>Submit</span>
+            </button>
+            <button onClick={exportEvidence} title="Export evidence">
+              <Download size={18} />
+              <span>Export</span>
+            </button>
+          </div>
+
+          <div className="feedbackSummary">
+            <div>
+              <Users size={17} />
+              <span>{feedbackEntries.length} entries</span>
+            </div>
+            <div>
+              <Star size={17} />
+              <span>{feedbackStatus}</span>
+            </div>
+            <div>
+              <ClipboardCheck size={17} />
+              <span>{evidenceSummary.latestEvent}</span>
+            </div>
+          </div>
+        </section>
       </section>
 
       <section className="workspace">

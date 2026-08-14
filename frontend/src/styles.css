@@ -32,7 +32,9 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
@@ -331,6 +333,168 @@ label span,
   transform: none;
 }
 
+.level4Grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+}
+
+.metricStrip {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  overflow: hidden;
+}
+
+.metricStrip div {
+  display: grid;
+  gap: 6px;
+  min-height: 74px;
+  padding: 12px;
+}
+
+.metricStrip div + div {
+  border-left: 1px solid var(--line);
+}
+
+.metricStrip span,
+.launchList span,
+.eventListHeader span,
+.eventRow span,
+.eventRow em,
+.feedbackSummary span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.metricStrip span,
+.launchList span,
+.eventListHeader span,
+.eventRow span,
+.eventRow em {
+  text-transform: uppercase;
+}
+
+.metricStrip strong,
+.eventRow strong,
+.feedbackSummary span {
+  overflow-wrap: anywhere;
+}
+
+.launchList {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.launchList div {
+  align-items: center;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  display: flex;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 10px;
+}
+
+.launchList svg {
+  color: var(--amber);
+  flex: 0 0 auto;
+}
+
+.launchList .done {
+  border-color: rgba(20, 132, 90, 0.42);
+  background: rgba(20, 132, 90, 0.08);
+}
+
+.launchList .done svg {
+  color: var(--green);
+}
+
+.eventList {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  overflow: hidden;
+}
+
+.eventListHeader,
+.eventRow,
+.feedbackSummary div {
+  align-items: center;
+}
+
+.eventListHeader {
+  background: var(--field);
+  display: flex;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 12px;
+}
+
+.eventRow {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 92px minmax(0, 1fr) minmax(72px, auto);
+  min-height: 42px;
+  padding: 10px 12px;
+}
+
+.eventRow + .eventRow {
+  border-top: 1px solid var(--line);
+}
+
+.eventRow.success strong {
+  color: var(--green);
+}
+
+.eventRow.error strong {
+  color: var(--coral);
+}
+
+.feedbackActions {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.feedbackActions button {
+  background: var(--green);
+  color: #fff;
+  padding: 0 14px;
+}
+
+.feedbackActions button:nth-child(2) {
+  background: var(--blue);
+}
+
+.feedbackSummary {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  overflow: hidden;
+}
+
+.feedbackSummary div {
+  display: flex;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 12px;
+}
+
+.feedbackSummary div + div {
+  border-top: 1px solid var(--line);
+}
+
+.feedbackSummary svg,
+.eventListHeader svg {
+  color: var(--green);
+  flex: 0 0 auto;
+}
+
 .workspace {
   display: grid;
   gap: 18px;
@@ -362,7 +526,9 @@ label {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-input {
+input,
+select,
+textarea {
   background: var(--field);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -373,7 +539,25 @@ input {
   width: 100%;
 }
 
-input:focus {
+select {
+  appearance: none;
+}
+
+textarea {
+  line-height: 1.45;
+  min-height: 96px;
+  padding: 12px;
+  resize: vertical;
+}
+
+input[type="range"] {
+  accent-color: var(--green);
+  padding: 0;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
   border-color: var(--blue);
   box-shadow: 0 0 0 3px rgba(49, 88, 255, 0.14);
 }
@@ -504,6 +688,7 @@ input:focus {
   }
 
   .scoreboard,
+  .level4Grid,
   .workspace,
   .grantStats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -511,8 +696,15 @@ input:focus {
 
   .paymentGrid,
   .paymentActions,
+  .metricStrip,
+  .launchList,
   .walletOptions {
     grid-template-columns: 1fr;
+  }
+
+  .metricStrip div + div {
+    border-left: 0;
+    border-top: 1px solid var(--line);
   }
 }
 
@@ -522,13 +714,19 @@ input:focus {
   }
 
   .scoreboard,
+  .level4Grid,
   .workspace,
   .paymentMeta,
   .walletOption,
   .fieldGrid,
   .buttonRow,
   .reviewRow,
+  .feedbackActions,
   .grantStats {
+    grid-template-columns: 1fr;
+  }
+
+  .eventRow {
     grid-template-columns: 1fr;
   }
 
