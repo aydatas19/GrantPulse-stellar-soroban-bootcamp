@@ -75,7 +75,7 @@ get_total_grants() -> u32
 
 - Public repository: <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp>
 - Live demo: <https://aydatas19.github.io/GrantPulse-stellar-soroban-bootcamp/>
-- Meaningful commits: 11 total commits on `main` after the Level 3 evidence update
+- Meaningful commits: 12 total commits on `main` after the Level 3 review response update
 - Wallet options screenshot: `docs/screenshots/wallet-options-available.png`
 - Deployed contract address: `CDNCS5MQUHT2XAOITMC74U7SKKDHQ4WJMEDNLLKFSMESSOK3SSNNFMWV`
 - Contract call transaction hash: `1f49394a95040b8c3ac1651f8727b4346eee33e21e5e5c674d9d1654b611f485`
@@ -87,6 +87,8 @@ get_total_grants() -> u32
 
 - Public GitHub repository: <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp>
 - Live demo link: <https://aydatas19.github.io/GrantPulse-stellar-soroban-bootcamp/>
+- Meaningful August commits: 11 commits on `main` from 2026-08-01 through 2026-08-14 after the Level 3 review response update
+- August commit evidence: `docs/submission/level3-august-commit-evidence.md`
 - Contract deployment address: `CDNCS5MQUHT2XAOITMC74U7SKKDHQ4WJMEDNLLKFSMESSOK3SSNNFMWV`
 - Contract interaction transaction hash: `1f49394a95040b8c3ac1651f8727b4346eee33e21e5e5c674d9d1654b611f485`
 - Contract interaction Explorer link: <https://stellar.expert/explorer/testnet/tx/1f49394a95040b8c3ac1651f8727b4346eee33e21e5e5c674d9d1654b611f485>
