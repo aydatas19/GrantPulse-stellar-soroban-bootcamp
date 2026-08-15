@@ -9,18 +9,20 @@ import {
   Coins,
   Download,
   ExternalLink,
+  FileSpreadsheet,
   FileCheck2,
   LogOut,
   Loader2,
   MessageSquare,
-  MonitorCheck,
   RefreshCw,
   Rocket,
   Send,
   ShieldCheck,
   Star,
+  Target,
   ThumbsDown,
   ThumbsUp,
+  UserPlus,
   Users,
   Wallet,
   XCircle,
@@ -51,6 +53,7 @@ import type { Grant } from "./lib/grantpulse";
 import {
   addFeedbackEntry,
   addTelemetryEvent,
+  buildFeedbackCsv,
   buildEvidenceBundle,
   extractTransactionHash,
   forwardFeedbackEntry,
@@ -59,6 +62,7 @@ import {
   readFeedbackEntries,
   readTelemetryEvents,
   summarizeEvidence,
+  summarizeLevel5,
 } from "./lib/telemetry";
 import type { FeedbackEntry, TelemetryEvent } from "./lib/telemetry";
 
@@ -194,6 +198,9 @@ export default function App() {
   const [feedbackEntries, setFeedbackEntries] = useState<FeedbackEntry[]>(() =>
     readFeedbackEntries(),
   );
+  const [feedbackName, setFeedbackName] = useState("");
+  const [feedbackEmail, setFeedbackEmail] = useState("");
+  const [feedbackWallet, setFeedbackWallet] = useState("");
   const [feedbackRole, setFeedbackRole] = useState("Builder");
   const [feedbackRating, setFeedbackRating] = useState("8");
   const [feedbackComment, setFeedbackComment] = useState("");
@@ -221,6 +228,12 @@ export default function App() {
     () => summarizeEvidence(telemetryEvents, feedbackEntries),
     [feedbackEntries, telemetryEvents],
   );
+  const level5Summary = useMemo(
+    () => summarizeLevel5(telemetryEvents, feedbackEntries),
+    [feedbackEntries, telemetryEvents],
+  );
+  const userTargetWidth = `${level5Summary.userProgress}%`;
+  const proofTargetWidth = `${level5Summary.proofProgress}%`;
   const recentEvents = telemetryEvents.slice(0, 5);
   const validationSteps = useMemo(
     () => [
@@ -236,18 +249,25 @@ export default function App() {
       },
       {
         label: "Feedback",
-        done: feedbackEntries.length > 0,
+        done: level5Summary.namedFeedback > 0,
       },
       {
-        label: "10 wallets",
-        done: evidenceSummary.uniqueWallets >= 10,
+        label: "50 users",
+        done: level5Summary.onboardedUsers >= level5Summary.targetUsers,
       },
       {
-        label: "Proof hashes",
-        done: evidenceSummary.proofHashes >= 10,
+        label: "50 proofs",
+        done: evidenceSummary.proofHashes >= level5Summary.targetUsers,
       },
     ],
-    [connected, evidenceSummary.proofHashes, evidenceSummary.uniqueWallets, feedbackEntries.length, telemetryEvents],
+    [
+      connected,
+      evidenceSummary.proofHashes,
+      level5Summary.namedFeedback,
+      level5Summary.onboardedUsers,
+      level5Summary.targetUsers,
+      telemetryEvents,
+    ],
   );
 
   const recordEvent = useCallback(
@@ -821,7 +841,26 @@ export default function App() {
   }
 
   async function submitFeedback() {
+    const name = feedbackName.trim();
+    const email = feedbackEmail.trim();
+    const wallet = address || feedbackWallet.trim();
     const comment = feedbackComment.trim();
+    if (!name) {
+      setFeedbackStatus("Tester name is required");
+      return;
+    }
+    if (!email) {
+      setFeedbackStatus("Email is required");
+      return;
+    }
+    if (!wallet) {
+      setFeedbackStatus("Wallet address is required");
+      return;
+    }
+    if (!StrKey.isValidEd25519PublicKey(wallet)) {
+      setFeedbackStatus("Enter a valid Stellar wallet address");
+      return;
+    }
     if (!comment) {
       setFeedbackStatus("Feedback comment is required");
       return;
@@ -833,15 +872,20 @@ export default function App() {
     const rating = Math.min(10, Math.max(1, Number(feedbackRating) || 8));
     const txHash = feedbackTxHash.trim();
     const { feedback, entries } = addFeedbackEntry({
+      name,
+      email,
       role: feedbackRole,
       rating,
       comment,
       blocker: feedbackBlocker.trim() || undefined,
       txHash: txHash || undefined,
-      wallet: address || undefined,
+      wallet,
     });
 
     setFeedbackEntries(entries);
+    setFeedbackName("");
+    setFeedbackEmail("");
+    setFeedbackWallet("");
     setFeedbackComment("");
     setFeedbackBlocker("");
     setFeedbackTxHash("");
@@ -852,7 +896,8 @@ export default function App() {
         label: "Feedback submitted",
         status: "success",
         txHash: txHash || undefined,
-        details: `${feedbackRole} rating ${rating}/10`,
+        wallet,
+        details: `${feedbackRole} rating ${rating}/10 from ${name}`,
       });
       const forwarded = await forwardFeedbackEntry(feedback);
       setFeedbackStatus(forwarded ? "Feedback sent" : "Feedback saved locally");
@@ -884,7 +929,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `grantpulse-level4-evidence-${new Date()
+    link.download = `grantpulse-level5-evidence-${new Date()
       .toISOString()
       .slice(0, 10)}.json`;
     document.body.appendChild(link);
@@ -899,6 +944,29 @@ export default function App() {
       details: `${telemetryEvents.length} events and ${feedbackEntries.length} feedback entries`,
     });
     setFeedbackStatus("Evidence exported");
+  }
+
+  function exportFeedbackCsv() {
+    const payload = buildFeedbackCsv(feedbackEntries);
+    const blob = new Blob([payload], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `grantpulse-level5-feedback-${new Date()
+      .toISOString()
+      .slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+
+    recordEvent({
+      name: "level5_feedback_csv_exported",
+      label: "Feedback CSV exported",
+      status: "success",
+      details: `${feedbackEntries.length} feedback entries`,
+    });
+    setFeedbackStatus("CSV exported");
   }
 
   return (
@@ -1072,33 +1140,54 @@ export default function App() {
         </div>
       </section>
 
-      <section className="level4Grid">
+      <section className="level5Grid">
         <section className="panel validationPanel">
           <div className="panelTitle">
-            <MonitorCheck size={21} />
-            <h2>Level 4 Validation</h2>
+            <Target size={21} />
+            <h2>Level 5 Growth Proof</h2>
           </div>
 
           <div className="metricStrip">
             <div>
-              <span>Wallets</span>
-              <strong>{evidenceSummary.uniqueWallets}/10</strong>
+              <span>Test Users</span>
+              <strong>
+                {level5Summary.onboardedUsers}/{level5Summary.targetUsers}
+              </strong>
             </div>
             <div>
-              <span>Interactions</span>
-              <strong>{evidenceSummary.walletInteractions}</strong>
+              <span>Tx Proofs</span>
+              <strong>
+                {evidenceSummary.proofHashes}/{level5Summary.targetUsers}
+              </strong>
             </div>
             <div>
-              <span>Proof Hashes</span>
-              <strong>{evidenceSummary.proofHashes}</strong>
+              <span>Usage</span>
+              <strong>{level5Summary.activeUsageEvents}</strong>
             </div>
             <div>
-              <span>Feedback</span>
-              <strong>{evidenceSummary.feedbackCount}</strong>
+              <span>Avg Rating</span>
+              <strong>{level5Summary.averageRating}</strong>
             </div>
             <div>
               <span>Errors</span>
               <strong>{evidenceSummary.errorCount}</strong>
+            </div>
+          </div>
+
+          <div className="targetStack">
+            <div>
+              <span>User onboarding</span>
+              <strong>{level5Summary.userProgress}%</strong>
+              <div className="targetTrack">
+                <div style={{ width: userTargetWidth }} />
+              </div>
+            </div>
+            <div>
+              <span>Transaction proof</span>
+              <strong>{level5Summary.proofProgress}%</strong>
+              <div className="targetTrack">
+                <div style={{ width: proofTargetWidth }} />
+              </div>
             </div>
           </div>
 
@@ -1139,9 +1228,39 @@ export default function App() {
 
         <section className="panel feedbackPanel">
           <div className="panelTitle">
-            <MessageSquare size={21} />
-            <h2>User Feedback</h2>
+            <UserPlus size={21} />
+            <h2>User Onboarding Feedback</h2>
           </div>
+
+          <div className="fieldGrid">
+            <label>
+              <span>Name</span>
+              <input
+                value={feedbackName}
+                onChange={(event) => setFeedbackName(event.target.value)}
+                placeholder="Tester name"
+              />
+            </label>
+            <label>
+              <span>Email</span>
+              <input
+                type="email"
+                value={feedbackEmail}
+                onChange={(event) => setFeedbackEmail(event.target.value)}
+                placeholder="tester@example.com"
+              />
+            </label>
+          </div>
+
+          <label>
+            <span>Wallet Address</span>
+            <input
+              disabled={connected}
+              value={connected ? address : feedbackWallet}
+              onChange={(event) => setFeedbackWallet(event.target.value)}
+              placeholder="G..."
+            />
+          </label>
 
           <div className="fieldGrid">
             <label>
@@ -1197,20 +1316,28 @@ export default function App() {
               {isBusy ? <Loader2 className="spin" size={18} /> : <MessageSquare size={18} />}
               <span>Submit</span>
             </button>
-            <button onClick={exportEvidence} title="Export evidence">
+            <button onClick={exportFeedbackCsv} title="Export feedback CSV">
+              <FileSpreadsheet size={18} />
+              <span>Export CSV</span>
+            </button>
+            <button onClick={exportEvidence} title="Export evidence JSON">
               <Download size={18} />
-              <span>Export</span>
+              <span>Export JSON</span>
             </button>
           </div>
 
           <div className="feedbackSummary">
             <div>
               <Users size={17} />
-              <span>{feedbackEntries.length} entries</span>
+              <span>{level5Summary.namedFeedback} named entries</span>
             </div>
             <div>
               <Star size={17} />
-              <span>{feedbackStatus}</span>
+              <span>{feedbackEntries.length} ratings / {feedbackStatus}</span>
+            </div>
+            <div>
+              <FileSpreadsheet size={17} />
+              <span>{level5Summary.verifiedFeedback} feedback rows with tx hash</span>
             </div>
             <div>
               <ClipboardCheck size={17} />

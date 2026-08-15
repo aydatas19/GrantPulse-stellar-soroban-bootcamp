@@ -16,6 +16,8 @@ export type TelemetryEvent = {
 export type FeedbackEntry = {
   id: string;
   createdAt: string;
+  name?: string;
+  email?: string;
   role: string;
   rating: number;
   comment: string;
@@ -36,10 +38,22 @@ export type EvidenceSummary = {
   feedbackMode: string;
 };
 
-const TELEMETRY_KEY = "grantpulse.level4.telemetry";
-const FEEDBACK_KEY = "grantpulse.level4.feedback";
-const EVENT_LIMIT = 120;
-const FEEDBACK_LIMIT = 60;
+export type Level5GrowthSummary = {
+  targetUsers: number;
+  onboardedUsers: number;
+  userProgress: number;
+  activeUsageEvents: number;
+  proofProgress: number;
+  verifiedFeedback: number;
+  namedFeedback: number;
+  averageRating: string;
+};
+
+const TELEMETRY_KEY = "grantpulse.level5.telemetry";
+const FEEDBACK_KEY = "grantpulse.level5.feedback";
+const EVENT_LIMIT = 400;
+const FEEDBACK_LIMIT = 150;
+const LEVEL5_USER_TARGET = 50;
 
 function safeParse<T>(value: string | null, fallback: T): T {
   if (!value) return fallback;
@@ -193,6 +207,78 @@ export function summarizeEvidence(
   };
 }
 
+export function summarizeLevel5(
+  events: TelemetryEvent[],
+  feedback: FeedbackEntry[],
+): Level5GrowthSummary {
+  const feedbackUsers = new Set(
+    feedback
+      .map((entry) => entry.email || entry.wallet || entry.name)
+      .filter(Boolean)
+      .map((value) => String(value).trim().toLowerCase()),
+  );
+  const eventWallets = new Set(events.map((event) => event.wallet).filter(Boolean));
+  const onboardedUsers = Math.max(feedbackUsers.size, eventWallets.size);
+  const activeUsageEvents = events.filter((event) => {
+    if (event.status !== "success") return false;
+    return (
+      event.name === "wallet_payment_sent" ||
+      event.name === "friendbot_funded" ||
+      event.name.startsWith("contract_")
+    );
+  }).length;
+  const proofHashes = events.filter((event) => event.txHash).length;
+  const ratings = feedback
+    .map((entry) => entry.rating)
+    .filter((rating) => Number.isFinite(rating));
+  const averageRating = ratings.length
+    ? (ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length).toFixed(1)
+    : "-";
+
+  return {
+    targetUsers: LEVEL5_USER_TARGET,
+    onboardedUsers,
+    userProgress: Math.min(100, Math.round((onboardedUsers / LEVEL5_USER_TARGET) * 100)),
+    activeUsageEvents,
+    proofProgress: Math.min(100, Math.round((proofHashes / LEVEL5_USER_TARGET) * 100)),
+    verifiedFeedback: feedback.filter((entry) => entry.wallet && entry.txHash).length,
+    namedFeedback: feedback.filter((entry) => entry.name && entry.email).length,
+    averageRating,
+  };
+}
+
+function csvValue(value: unknown) {
+  const text = value === undefined || value === null ? "" : String(value);
+  return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+export function buildFeedbackCsv(feedback: FeedbackEntry[]) {
+  const headers = [
+    "submitted_at",
+    "name",
+    "email",
+    "wallet_address",
+    "role",
+    "rating",
+    "product_feedback",
+    "blocker",
+    "transaction_hash",
+  ];
+  const rows = feedback.map((entry) => [
+    entry.createdAt,
+    entry.name ?? "",
+    entry.email ?? "",
+    entry.wallet ?? "",
+    entry.role,
+    entry.rating,
+    entry.comment,
+    entry.blocker ?? "",
+    entry.txHash ?? "",
+  ]);
+
+  return [headers, ...rows].map((row) => row.map(csvValue).join(",")).join("\n");
+}
+
 export function extractTransactionHash(sent: unknown) {
   if (!sent || typeof sent !== "object") return "";
 
@@ -219,13 +305,14 @@ export function buildEvidenceBundle(input: {
 
   return JSON.stringify(
     {
-      project: "GrantPulse Stellar Level 4 Evidence",
+      project: "GrantPulse Stellar Level 5 Evidence",
       generatedAt: new Date().toISOString(),
       liveDemoUrl: input.liveDemoUrl,
       contractId: input.contractId,
       explorerUrl: input.explorerUrl,
       labUrl: input.labUrl,
       summary,
+      level5: summarizeLevel5(input.events, input.feedback),
       events: input.events,
       feedback: input.feedback,
     },
