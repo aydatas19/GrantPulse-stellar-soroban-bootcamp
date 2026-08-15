@@ -17,7 +17,8 @@
 - [ ] 50+ rows exported from Google Form to Excel
 - [ ] 50+ wallet addresses collected
 - [ ] Real transaction hash or Stellar Expert URL included per tester
-- [ ] Screenshots of analytics and transaction activity added
+- [x] Level 5 product screenshots added
+- [ ] Final analytics and transaction activity screenshots added after real 50-user campaign
 
 ## Product Improvements
 
@@ -29,13 +30,13 @@
 
 ## Presentation And Demo
 
-- [ ] Pitch deck generated and linked in README
+- [x] Pitch deck generated and linked in README
 - [ ] Full product walkthrough/demo recorded and linked in README
 - [x] Demo recording script prepared
 
 ## Technical Standards
 
-- [ ] 20+ meaningful commits on `main`
+- [x] 20+ meaningful commits on `main`
 - [x] Frontend production build passes
-- [ ] Contract tests pass after Level 5 docs and artifact updates
+- [x] Contract tests pass after Level 5 docs and artifact updates
 - [x] README and submission documentation updated for Level 5 workflow

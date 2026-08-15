@@ -135,6 +135,53 @@ Before final Level 4 submission, replace the placeholder evidence files with:
 - A new Level 4 demo video link.
 - Updated screenshots for product UI, mobile responsive UI, and analytics/monitoring setup.
 
+## Level 5 Blue Belt Readiness
+
+GrantPulse now includes a Level 5 growth layer focused on onboarding 50 real testnet users, collecting named feedback, exporting submission evidence, and preparing the project for a pitch/demo review.
+
+Level 5 submission links and files:
+
+- Public GitHub repository: <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp>
+- Live demo link: <https://aydatas19.github.io/GrantPulse-stellar-soroban-bootcamp/>
+- Deployed contract: `CDNCS5MQUHT2XAOITMC74U7SKKDHQ4WJMEDNLLKFSMESSOK3SSNNFMWV`
+- Contract Explorer: <https://stellar.expert/explorer/testnet/contract/CDNCS5MQUHT2XAOITMC74U7SKKDHQ4WJMEDNLLKFSMESSOK3SSNNFMWV>
+- Pitch deck: [docs/pitch/grantpulse-level5-pitch-deck.pptx](docs/pitch/grantpulse-level5-pitch-deck.pptx)
+- Demo recording script: [docs/demo/level5-demo-script.md](docs/demo/level5-demo-script.md)
+- Level 5 checklist: [docs/submission/level5-checklist.md](docs/submission/level5-checklist.md)
+- Level 5 commit evidence: [docs/submission/level5-commit-evidence.md](docs/submission/level5-commit-evidence.md)
+- Google Form setup guide: [docs/submission/level5-google-form-questions.md](docs/submission/level5-google-form-questions.md)
+- Exported Excel feedback workbook: [docs/submission/level5-user-feedback-export.xlsx](docs/submission/level5-user-feedback-export.xlsx)
+- CSV column template: [docs/submission/level5-user-onboarding-template.csv](docs/submission/level5-user-onboarding-template.csv)
+- Feedback iteration summary: [docs/submission/level5-feedback-iteration-summary.md](docs/submission/level5-feedback-iteration-summary.md)
+- Desktop Level 5 screenshot: [docs/screenshots/level5-growth-proof.png](docs/screenshots/level5-growth-proof.png)
+- Level 5 growth panel screenshot: [docs/screenshots/level5-growth-panel.png](docs/screenshots/level5-growth-panel.png)
+- Mobile Level 5 screenshot: [docs/screenshots/level5-mobile-growth-proof.png](docs/screenshots/level5-mobile-growth-proof.png)
+
+Current Level 5 status:
+
+- Meaningful commits: 21 total commits after the Level 5 README update
+- Validation: `npm run build` passes and `cargo test` passes with 4 contract tests
+- Product improvements: Level 5 growth dashboard, required tester identity fields, wallet-linked feedback, CSV export, updated JSON evidence bundle, Excel workbook, pitch deck, and demo script
+- Published Google Form link: `TODO - create using docs/submission/level5-google-form-questions.md and paste the public form URL here`
+- Demo video link: `TODO - record using docs/demo/level5-demo-script.md and paste the video URL here`
+- Proof of 50+ users: `TODO - replace the workbook with the real Google Form Excel export after 50+ testers submit wallet and transaction proof`
+- Analytics or transaction activity screenshots: `TODO - add screenshots after the 50-user testnet campaign`
+
+Level 5 feedback-driven improvements:
+
+- Added a Level 5 growth proof dashboard and CSV/JSON evidence exports: <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp/commit/d423939>
+- Documented the Google Form onboarding workflow, Level 5 checklist, and demo script: <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp/commit/67d7482>
+- Added the Excel feedback workbook for Google Form export analysis: <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp/commit/5500d39>
+- Added the Level 5 pitch deck and updated product screenshots: <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp/commit/550fe57>
+
+Next phase evolution plan based on the 50-user feedback campaign:
+
+1. Review the exported Excel workbook for the lowest ratings, repeated onboarding blockers, and missing proof rows.
+2. Prioritize one onboarding fix, one reviewer workflow improvement, and one trust/proof improvement.
+3. Commit the highest-impact product change and add the new commit link to the Level 5 feedback iteration summary.
+4. Update the pitch deck traction slide with the final user count, average rating, transaction proof count, and strongest feedback themes.
+5. Record the final walkthrough using the real 50-user evidence and link the video here before submission.
+
 ## Tech Stack
 
 - Stellar Soroban smart contract
