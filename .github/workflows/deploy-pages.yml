@@ -1,7 +1,10 @@
-name: Deploy GitHub Pages
+name: CI and Deploy GitHub Pages
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
   workflow_dispatch:
@@ -16,14 +19,37 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  smart-contract:
+    name: Smart contract CI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy,rustfmt
+          targets: wasm32v1-none
+
+      - name: Check Rust formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Run smart contract tests
+        run: cargo test --workspace
+
+      - name: Build Soroban WASM
+        run: cargo build --workspace --target wasm32v1-none --release
+
+  frontend:
+    name: Frontend CI and Pages artifact
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -36,20 +62,32 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: Validate smart contract frontend integration
+        working-directory: frontend
+        run: npm run test:integration
+
       - name: Build frontend
         working-directory: frontend
         run: npm run build
 
+      - name: Setup Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+
       - name: Upload artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/dist
 
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
+    needs:
+      - smart-contract
+      - frontend
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages

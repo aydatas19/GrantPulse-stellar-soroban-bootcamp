@@ -18,9 +18,13 @@ If no endpoint is configured, telemetry and feedback are stored in browser local
 ## Local Verification
 
 ```bash
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
 cargo test
+cargo build --workspace --target wasm32v1-none --release
 cd frontend
 npm ci
+npm run test:integration
 npm run build
 npm run preview
 ```
@@ -38,6 +42,16 @@ Push `main` or run the workflow manually from GitHub Actions. The expected live 
 ```text
 https://aydatas19.github.io/GrantPulse-stellar-soroban-bootcamp/
 ```
+
+## CI/CD Gate
+
+The workflow is split into smart contract CI, frontend CI, and deployment jobs:
+
+| Job | Checks |
+| --- | --- |
+| Smart contract CI | Rust formatting, Clippy, `cargo test --workspace`, Soroban WASM release build |
+| Frontend CI | `npm ci`, `npm run test:integration`, `npm run build` |
+| Deploy | Publishes `frontend/dist` to GitHub Pages after both CI jobs pass |
 
 ## Screenshot Set
 

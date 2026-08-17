@@ -21,6 +21,10 @@ Date prepared: 2026-08-14
 | Proof of wallet interactions | Evidence needed | Add Stellar Expert links for each real wallet interaction hash |
 | Basic user feedback collection | Ready + evidence needed | In-app feedback form and export; summarize real responses in `docs/submission/level4-feedback-summary.md` |
 | Production deployment | Ready | GitHub Pages workflow: `.github/workflows/deploy-pages.yml`; live link in README |
+| CI/CD workflow file detection | Ready | Root workflow file exists at `.github/workflows/deploy-pages.yml` |
+| CI validation for smart contract | Ready | Workflow runs `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`, and `cargo build --workspace --target wasm32v1-none --release` |
+| CI validation for frontend | Ready | Workflow runs `npm ci`, `npm run test:integration`, and `npm run build` in `frontend/` |
+| CD validation for smart contract and frontend | Ready | GitHub Pages deploy job waits for both smart contract CI and frontend CI before publishing `frontend/dist` |
 | Monitoring and analytics integration | Ready | Local telemetry, runtime error monitor, optional `VITE_ANALYTICS_ENDPOINT`, evidence export |
 | Optimized UX | Ready | Onboarding validation panel, evidence export, responsive controls, status/error surfaces |
 | Proper documentation | Ready | README plus Level 4 submission docs in `docs/submission/` |
@@ -41,6 +45,17 @@ Date prepared: 2026-08-14
 5. Ask the tester to submit feedback in the in-app User Feedback panel.
 6. Export the in-app evidence JSON after the test session.
 7. Summarize feedback themes in `level4-feedback-summary.md`.
+
+## Resubmission Evidence
+
+The Level 4 revision response is documented in:
+
+```text
+LEVEL4_REVISION_RESPONSE.md
+docs/submission/level4-resubmission-evidence.md
+```
+
+These files point directly to the frontend integration, generated contract binding, CI checks, and GitHub Pages deployment workflow requested by the reviewer.
 
 ## Demo Video Script
 
