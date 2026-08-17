@@ -2,6 +2,12 @@
 
 Create a Google Form named `GrantPulse Level 5 Testnet Onboarding`.
 
+Published form URL:
+
+```text
+TODO - paste the public Google Form link here after creating the form
+```
+
 ## Required Questions
 
 1. Full name
@@ -31,6 +37,7 @@ Create a Google Form named `GrantPulse Level 5 Testnet Onboarding`.
 6. Transaction hash or Stellar Expert Testnet URL
    - Type: Short answer
    - Required: Yes
+   - Accepted format: 64-character Testnet transaction hash or `https://stellar.expert/explorer/testnet/tx/<hash>`
 
 7. Rate GrantPulse
    - Type: Linear scale
@@ -55,11 +62,45 @@ Create a Google Form named `GrantPulse Level 5 Testnet Onboarding`.
     - Required: Yes
     - Options: Yes, No
 
+## Recommended Form Description
+
+```text
+Please test GrantPulse on Stellar Testnet before submitting this form. Your response counts toward Level 5 only if it includes your name, email, unique Stellar Testnet wallet address, rating, product feedback, and a real transaction hash or Stellar Expert Testnet URL.
+```
+
+## Response Sheet Columns
+
+Keep these columns when exporting to Excel:
+
+```text
+submitted_at
+name
+email
+wallet_address
+role
+completed_testnet_transaction
+transaction_hash_or_url
+rating
+worked_well
+confusing_or_risky
+next_improvement
+anonymous_feedback_permission
+transaction_hash
+stellar_expert_url
+```
+
+The final two columns can be added in Google Sheets before exporting. They make the proof review faster:
+
+- `transaction_hash`: normalized 64-character hash extracted from `transaction_hash_or_url`
+- `stellar_expert_url`: full Testnet Explorer URL for the normalized hash
+
 ## Export Workflow
 
 1. Open the form responses tab.
 2. Link responses to a Google Sheet.
-3. Download the response sheet as Microsoft Excel `.xlsx`.
-4. Replace `docs/submission/level5-user-feedback-export.xlsx` with the exported file.
-5. Keep `docs/submission/level5-user-onboarding-template.csv` in the repo as the column reference.
-6. Update the README with the published form link, exported Excel link, user count, and feedback-driven improvement notes.
+3. Add `transaction_hash` and `stellar_expert_url` helper columns if they are not already present.
+4. Download the response sheet as Microsoft Excel `.xlsx`.
+5. Replace `docs/submission/level5-user-feedback-export.xlsx` with the exported file.
+6. Keep `docs/submission/level5-user-onboarding-template.csv` in the repo as the column reference.
+7. Review rows with `docs/submission/level5-user-proof-review.md`.
+8. Update the README with the published form link, exported Excel link, valid user count, proof count, and feedback-driven improvement notes.
