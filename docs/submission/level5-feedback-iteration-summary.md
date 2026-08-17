@@ -14,12 +14,26 @@ GrantPulse Level 5 focuses on scaling from MVP validation into a larger onboardi
 
 - Added a Level 5 growth proof dashboard for 50-user onboarding, transaction proof progress, active usage, average rating, and runtime errors.
 - Expanded feedback capture to include tester name, email, Stellar wallet address, role, rating, blocker, and transaction hash.
+- Added transaction proof normalization so testers can paste either a 64-character hash or a Stellar Expert Testnet URL.
+- Added submission readiness metrics for users remaining, proofs remaining, valid wallets, and verified feedback rows.
 - Added CSV export for feedback rows so Google Form exports and in-app feedback use the same evidence structure.
 - Updated JSON evidence export to label the bundle as Level 5 and include a Level 5 growth summary.
+- Added feedback insight counts for top tester role, follow-up rows, high ratings, low ratings, and latest blocker.
 
 Improvement commit link:
 
 - <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp/commit/d423939>
+- <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp/commit/3e57c10>
+- <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp/commit/8ddf3a4>
+- <https://github.com/aydatas19/GrantPulse-stellar-soroban-bootcamp/commit/a4175f0>
+
+## Evidence And Analysis Workflow
+
+- Campaign plan: `docs/submission/level5-growth-campaign-plan.md`
+- Proof review: `docs/submission/level5-user-proof-review.md`
+- Feedback analysis guide: `docs/submission/level5-feedback-analysis-guide.md`
+- Roadmap from feedback: `docs/submission/level5-roadmap-from-feedback.md`
+- Commit evidence: `docs/submission/level5-commit-evidence.md`
 
 ## Next Phase Decisions From User Feedback
 
