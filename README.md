@@ -130,6 +130,13 @@ Level 4 submission links and files:
 - Production ops notes: `docs/submission/level4-production-ops.md`
 - Real wallet interaction template: `docs/submission/level4-user-wallet-interactions.csv`
 - User feedback summary template: `docs/submission/level4-feedback-summary.md`
+- Wallet proof guide: `docs/submission/level4-wallet-proof-guide.md`
+- Feedback review guide: `docs/submission/level4-feedback-review-guide.md`
+- Deployment verification guide: `docs/submission/level4-deployment-verification.md`
+- Monitoring QA guide: `docs/submission/level4-monitoring-qa.md`
+- CI troubleshooting guide: `docs/submission/level4-ci-troubleshooting.md`
+- Reviewer handoff: `docs/submission/level4-reviewer-handoff.md`
+- Closeout checklist: `docs/submission/level4-closeout-checklist.md`
 - CI/CD workflow: `.github/workflows/deploy-pages.yml`
 - Frontend integration verification: `frontend/scripts/verify-contract-integration.mjs`
 - Product UI screenshot: `docs/screenshots/level4-product-ui.png`
