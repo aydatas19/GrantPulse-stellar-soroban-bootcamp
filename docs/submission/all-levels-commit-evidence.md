@@ -9,7 +9,7 @@ This file groups the repository history by bootcamp level so reviewers can see t
 | Level 1 | 3 | Wallet setup, payment UI, and testing workflow |
 | Level 2 | 1 | Submission evidence and deployed contract proof |
 | Level 3 | 6 | Contract coverage, screenshots, demo video, and August commit evidence |
-| Level 4 | 6 | Telemetry, validation screenshots, CI/CD, frontend integration, and resubmission evidence |
+| Level 4 | 15 | Telemetry, validation screenshots, CI/CD, frontend integration, resubmission evidence, and proof review guides |
 | Level 5 | 20 | Growth dashboard, onboarding proof, pitch/demo assets, feedback analysis, and commit evidence |
 
 ## Level 1 Commits
@@ -33,12 +33,27 @@ This file groups the repository history by bootcamp level so reviewers can see t
 
 ## Level 4 Commits
 
+- `7459a6c` - Link Level 4 evidence guides in README
+- `f031314` - Add Level 4 closeout checklist
+- `5a9326f` - Add Level 4 reviewer handoff
+- `ea8d532` - Add Level 4 CI troubleshooting guide
+- `3096280` - Add Level 4 monitoring QA checklist
+- `8926973` - Add Level 4 deployment verification guide
+- `131dd23` - Add Level 4 feedback review guide
+- `3de341f` - Add Level 4 wallet proof guide
+- `83701bb` - Add Level 4 commit evidence script
 - `c1c1aaf` - Document Level 4 resubmission evidence
 - `a43e45c` - Expand Level 4 CI CD validation
 - `f437647` - Add Level 4 frontend integration check
 - `67fa46d` - Add Level 4 validation screenshots
 - `b20be78` - Document Level 4 submission readiness
 - `3c40e2a` - Add Level 4 telemetry and feedback flow
+
+Dedicated evidence file:
+
+```text
+docs/submission/level4-commit-evidence.md
+```
 
 ## Level 5 Commits
 
