@@ -24,6 +24,8 @@ export type FeedbackEntry = {
   wallet?: string;
   blocker?: string;
   txHash?: string;
+  txProofUrl?: string;
+  completedTransaction?: boolean;
 };
 
 export type EvidenceSummary = {
@@ -44,9 +46,30 @@ export type Level5GrowthSummary = {
   userProgress: number;
   activeUsageEvents: number;
   proofProgress: number;
+  readinessScore: number;
   verifiedFeedback: number;
   namedFeedback: number;
+  validWallets: number;
+  validProofs: number;
+  usersRemaining: number;
+  proofsRemaining: number;
   averageRating: string;
+};
+
+export type FeedbackInsights = {
+  topRole: string;
+  blockers: number;
+  lowRatings: number;
+  promoters: number;
+  followUps: number;
+  latestBlocker: string;
+};
+
+export type TransactionProof = {
+  raw: string;
+  hash: string;
+  url: string;
+  valid: boolean;
 };
 
 const TELEMETRY_KEY = "grantpulse.level5.telemetry";
@@ -54,6 +77,10 @@ const FEEDBACK_KEY = "grantpulse.level5.feedback";
 const EVENT_LIMIT = 400;
 const FEEDBACK_LIMIT = 150;
 const LEVEL5_USER_TARGET = 50;
+const TESTNET_TX_URL = "https://stellar.expert/explorer/testnet/tx";
+const WALLET_PATTERN = /^G[A-Z2-7]{55}$/;
+const TX_HASH_PATTERN = /^[a-f0-9]{64}$/i;
+const STELLAR_EXPERT_TX_PATTERN = /stellar\.expert\/explorer\/testnet\/tx\/([a-f0-9]{64})/i;
 
 function safeParse<T>(value: string | null, fallback: T): T {
   if (!value) return fallback;
@@ -97,6 +124,33 @@ function readReason(reason: unknown) {
 function configuredEndpoint(name: "VITE_ANALYTICS_ENDPOINT" | "VITE_FEEDBACK_ENDPOINT") {
   const value = import.meta.env[name];
   return typeof value === "string" && value.trim() ? value.trim() : "";
+}
+
+export function normalizeTransactionProof(value: string | undefined): TransactionProof {
+  const raw = value?.trim() ?? "";
+  const urlMatch = raw.match(STELLAR_EXPERT_TX_PATTERN);
+  const hash = urlMatch?.[1] ?? (TX_HASH_PATTERN.test(raw) ? raw : "");
+  const normalizedHash = hash.toLowerCase();
+
+  return {
+    raw,
+    hash: normalizedHash,
+    url: normalizedHash ? `${TESTNET_TX_URL}/${normalizedHash}` : "",
+    valid: Boolean(normalizedHash),
+  };
+}
+
+function validWallet(value: string | undefined) {
+  return Boolean(value && WALLET_PATTERN.test(value));
+}
+
+function collectProofHashes(events: TelemetryEvent[], feedback: FeedbackEntry[]) {
+  return new Set(
+    [
+      ...events.map((event) => normalizeTransactionProof(event.txHash).hash),
+      ...feedback.map((entry) => normalizeTransactionProof(entry.txHash).hash),
+    ].filter(Boolean),
+  );
 }
 
 export function readTelemetryEvents() {
@@ -187,7 +241,7 @@ export function summarizeEvidence(
       event.name === "friendbot_funded"
     );
   }).length;
-  const proofHashes = events.filter((event) => event.txHash).length;
+  const proofHashes = collectProofHashes(events, feedback).size;
   const errorCount = events.filter((event) => event.status === "error").length;
   const sessions = events.filter((event) => event.name === "session_started").length;
   const latestEvent = events[0]
@@ -227,23 +281,61 @@ export function summarizeLevel5(
       event.name.startsWith("contract_")
     );
   }).length;
-  const proofHashes = events.filter((event) => event.txHash).length;
+  const proofHashes = collectProofHashes(events, feedback).size;
+  const validWallets = new Set(
+    feedback.map((entry) => entry.wallet).filter((wallet) => validWallet(wallet)),
+  ).size;
+  const validProofs = feedback.filter((entry) => normalizeTransactionProof(entry.txHash).valid).length;
   const ratings = feedback
     .map((entry) => entry.rating)
     .filter((rating) => Number.isFinite(rating));
   const averageRating = ratings.length
     ? (ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length).toFixed(1)
     : "-";
+  const userProgress = Math.min(100, Math.round((onboardedUsers / LEVEL5_USER_TARGET) * 100));
+  const proofProgress = Math.min(100, Math.round((proofHashes / LEVEL5_USER_TARGET) * 100));
+  const readinessScore = Math.round((userProgress + proofProgress) / 2);
 
   return {
     targetUsers: LEVEL5_USER_TARGET,
     onboardedUsers,
-    userProgress: Math.min(100, Math.round((onboardedUsers / LEVEL5_USER_TARGET) * 100)),
+    userProgress,
     activeUsageEvents,
-    proofProgress: Math.min(100, Math.round((proofHashes / LEVEL5_USER_TARGET) * 100)),
-    verifiedFeedback: feedback.filter((entry) => entry.wallet && entry.txHash).length,
+    proofProgress,
+    readinessScore,
+    verifiedFeedback: feedback.filter(
+      (entry) => validWallet(entry.wallet) && normalizeTransactionProof(entry.txHash).valid,
+    ).length,
     namedFeedback: feedback.filter((entry) => entry.name && entry.email).length,
+    validWallets,
+    validProofs,
+    usersRemaining: Math.max(0, LEVEL5_USER_TARGET - onboardedUsers),
+    proofsRemaining: Math.max(0, LEVEL5_USER_TARGET - proofHashes),
     averageRating,
+  };
+}
+
+export function summarizeFeedbackInsights(feedback: FeedbackEntry[]): FeedbackInsights {
+  const roleCounts = feedback.reduce<Record<string, number>>((counts, entry) => {
+    counts[entry.role] = (counts[entry.role] ?? 0) + 1;
+    return counts;
+  }, {});
+  const topRole =
+    Object.entries(roleCounts).sort(([, left], [, right]) => right - left)[0]?.[0] ?? "-";
+  const blockers = feedback.filter((entry) => entry.blocker?.trim()).length;
+  const lowRatings = feedback.filter((entry) => entry.rating <= 6).length;
+  const promoters = feedback.filter((entry) => entry.rating >= 9).length;
+  const followUps = feedback.filter((entry) => entry.rating <= 6 || entry.blocker?.trim()).length;
+  const latestBlocker =
+    feedback.find((entry) => entry.blocker?.trim())?.blocker?.trim() ?? "No blockers logged";
+
+  return {
+    topRole,
+    blockers,
+    lowRatings,
+    promoters,
+    followUps,
+    latestBlocker,
   };
 }
 
@@ -259,22 +351,36 @@ export function buildFeedbackCsv(feedback: FeedbackEntry[]) {
     "email",
     "wallet_address",
     "role",
+    "completed_testnet_transaction",
+    "transaction_hash_or_url",
     "rating",
-    "product_feedback",
-    "blocker",
+    "worked_well",
+    "confusing_or_risky",
+    "next_improvement",
+    "anonymous_feedback_permission",
     "transaction_hash",
+    "stellar_expert_url",
   ];
-  const rows = feedback.map((entry) => [
-    entry.createdAt,
-    entry.name ?? "",
-    entry.email ?? "",
-    entry.wallet ?? "",
-    entry.role,
-    entry.rating,
-    entry.comment,
-    entry.blocker ?? "",
-    entry.txHash ?? "",
-  ]);
+  const rows = feedback.map((entry) => {
+    const proof = normalizeTransactionProof(entry.txHash);
+
+    return [
+      entry.createdAt,
+      entry.name ?? "",
+      entry.email ?? "",
+      entry.wallet ?? "",
+      entry.role,
+      entry.completedTransaction === false ? "No" : "Yes",
+      entry.txProofUrl || proof.raw || proof.url,
+      entry.rating,
+      entry.comment,
+      entry.blocker ?? "",
+      "",
+      "Yes",
+      proof.hash,
+      proof.url,
+    ];
+  });
 
   return [headers, ...rows].map((row) => row.map(csvValue).join(",")).join("\n");
 }
@@ -302,6 +408,7 @@ export function buildEvidenceBundle(input: {
   feedback: FeedbackEntry[];
 }) {
   const summary = summarizeEvidence(input.events, input.feedback);
+  const level5 = summarizeLevel5(input.events, input.feedback);
 
   return JSON.stringify(
     {
@@ -312,7 +419,8 @@ export function buildEvidenceBundle(input: {
       explorerUrl: input.explorerUrl,
       labUrl: input.labUrl,
       summary,
-      level5: summarizeLevel5(input.events, input.feedback),
+      level5,
+      feedbackInsights: summarizeFeedbackInsights(input.feedback),
       events: input.events,
       feedback: input.feedback,
     },
