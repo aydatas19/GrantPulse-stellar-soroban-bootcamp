@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+    "test": "npm run test:integration",
+    "test:integration": "node scripts/verify-contract-integration.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 0.0.0.0"
   },
@@ -24,4 +26,3 @@
     "vite": "^7.3.0"
   }
 }
-
