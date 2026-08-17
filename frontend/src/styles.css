@@ -420,6 +420,38 @@ label span,
   transition: width 200ms ease;
 }
 
+.readinessTrack div {
+  background: linear-gradient(90deg, var(--amber), var(--green));
+}
+
+.readinessGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.readinessGrid div {
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  min-height: 66px;
+  padding: 12px;
+}
+
+.readinessGrid span,
+.proofHint span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.readinessGrid strong {
+  overflow-wrap: anywhere;
+}
+
 .launchList {
   display: grid;
   gap: 8px;
@@ -509,6 +541,31 @@ label span,
 
 .feedbackActions button:nth-child(3) {
   background: var(--ink);
+}
+
+.proofHint {
+  align-items: center;
+  background: rgba(192, 121, 18, 0.08);
+  border: 1px solid rgba(192, 121, 18, 0.28);
+  border-radius: 8px;
+  display: flex;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 12px;
+}
+
+.proofHint svg {
+  color: var(--amber);
+  flex: 0 0 auto;
+}
+
+.proofHint.valid {
+  background: rgba(20, 132, 90, 0.08);
+  border-color: rgba(20, 132, 90, 0.35);
+}
+
+.proofHint.valid svg {
+  color: var(--green);
 }
 
 .feedbackSummary {
@@ -737,6 +794,7 @@ textarea:focus {
   .paymentGrid,
   .paymentActions,
   .metricStrip,
+  .readinessGrid,
   .launchList,
   .walletOptions {
     grid-template-columns: 1fr;

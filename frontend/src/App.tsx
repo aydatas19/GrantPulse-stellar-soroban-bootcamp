@@ -59,9 +59,11 @@ import {
   forwardFeedbackEntry,
   forwardTelemetryEvent,
   installRuntimeMonitoring,
+  normalizeTransactionProof,
   readFeedbackEntries,
   readTelemetryEvents,
   summarizeEvidence,
+  summarizeFeedbackInsights,
   summarizeLevel5,
 } from "./lib/telemetry";
 import type { FeedbackEntry, TelemetryEvent } from "./lib/telemetry";
@@ -234,7 +236,21 @@ export default function App() {
   );
   const userTargetWidth = `${level5Summary.userProgress}%`;
   const proofTargetWidth = `${level5Summary.proofProgress}%`;
+  const readinessWidth = `${level5Summary.readinessScore}%`;
   const recentEvents = telemetryEvents.slice(0, 5);
+  const feedbackInsights = useMemo(
+    () => summarizeFeedbackInsights(feedbackEntries),
+    [feedbackEntries],
+  );
+  const txProof = useMemo(
+    () => normalizeTransactionProof(feedbackTxHash),
+    [feedbackTxHash],
+  );
+  const txProofStatus = feedbackTxHash.trim()
+    ? txProof.valid
+      ? "Valid Testnet proof"
+      : "Invalid proof"
+    : "Proof required";
   const validationSteps = useMemo(
     () => [
       {
@@ -865,12 +881,15 @@ export default function App() {
       setFeedbackStatus("Feedback comment is required");
       return;
     }
+    if (!txProof.valid) {
+      setFeedbackStatus("Transaction hash or Stellar Expert Testnet URL is required");
+      return;
+    }
 
     setIsBusy(true);
     setError("");
 
     const rating = Math.min(10, Math.max(1, Number(feedbackRating) || 8));
-    const txHash = feedbackTxHash.trim();
     const { feedback, entries } = addFeedbackEntry({
       name,
       email,
@@ -878,7 +897,9 @@ export default function App() {
       rating,
       comment,
       blocker: feedbackBlocker.trim() || undefined,
-      txHash: txHash || undefined,
+      txHash: txProof.hash,
+      txProofUrl: txProof.url,
+      completedTransaction: true,
       wallet,
     });
 
@@ -895,7 +916,7 @@ export default function App() {
         name: "feedback_submitted",
         label: "Feedback submitted",
         status: "success",
-        txHash: txHash || undefined,
+        txHash: txProof.hash,
         wallet,
         details: `${feedbackRole} rating ${rating}/10 from ${name}`,
       });
@@ -1189,6 +1210,32 @@ export default function App() {
                 <div style={{ width: proofTargetWidth }} />
               </div>
             </div>
+            <div>
+              <span>Submission readiness</span>
+              <strong>{level5Summary.readinessScore}%</strong>
+              <div className="targetTrack readinessTrack">
+                <div style={{ width: readinessWidth }} />
+              </div>
+            </div>
+          </div>
+
+          <div className="readinessGrid">
+            <div>
+              <span>Users Left</span>
+              <strong>{level5Summary.usersRemaining}</strong>
+            </div>
+            <div>
+              <span>Proofs Left</span>
+              <strong>{level5Summary.proofsRemaining}</strong>
+            </div>
+            <div>
+              <span>Valid Wallets</span>
+              <strong>{level5Summary.validWallets}</strong>
+            </div>
+            <div>
+              <span>Verified Rows</span>
+              <strong>{level5Summary.verifiedFeedback}</strong>
+            </div>
           </div>
 
           <div className="launchList">
@@ -1303,13 +1350,18 @@ export default function App() {
           </label>
 
           <label>
-            <span>Wallet Tx Hash</span>
+            <span>Wallet Tx Hash Or URL</span>
             <input
               value={feedbackTxHash}
               onChange={(event) => setFeedbackTxHash(event.target.value)}
-              placeholder="Optional proof hash"
+              placeholder="Hash or Stellar Expert Testnet URL"
             />
           </label>
+
+          <div className={txProof.valid ? "proofHint valid" : "proofHint"}>
+            {txProof.valid ? <CheckCircle2 size={17} /> : <ShieldCheck size={17} />}
+            <span>{txProofStatus}</span>
+          </div>
 
           <div className="feedbackActions">
             <button onClick={submitFeedback} disabled={isBusy} title="Submit feedback">
@@ -1340,8 +1392,24 @@ export default function App() {
               <span>{level5Summary.verifiedFeedback} feedback rows with tx hash</span>
             </div>
             <div>
+              <Target size={17} />
+              <span>{feedbackInsights.topRole} top tester role</span>
+            </div>
+            <div>
+              <XCircle size={17} />
+              <span>{feedbackInsights.followUps} follow-up rows</span>
+            </div>
+            <div>
+              <Star size={17} />
+              <span>{feedbackInsights.promoters} high ratings / {feedbackInsights.lowRatings} low</span>
+            </div>
+            <div>
               <ClipboardCheck size={17} />
               <span>{evidenceSummary.latestEvent}</span>
+            </div>
+            <div>
+              <MessageSquare size={17} />
+              <span>{feedbackInsights.latestBlocker}</span>
             </div>
           </div>
         </section>
