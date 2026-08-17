@@ -112,7 +112,11 @@ GrantPulse now includes a production-readiness layer for Level 4 validation:
 - Local analytics storage with optional `VITE_ANALYTICS_ENDPOINT` forwarding.
 - In-app user feedback collection with optional `VITE_FEEDBACK_ENDPOINT` forwarding.
 - Evidence export as JSON from the live app.
+- Generated Soroban TypeScript binding in `frontend/packages/grantpulse/src/index.ts`.
+- Typed frontend contract client with Freighter signing in `frontend/src/lib/grantpulse.ts`.
+- React UI calls for every public smart contract function in `frontend/src/App.tsx`.
 - GitHub Pages production deployment workflow in `.github/workflows/deploy-pages.yml`.
+- Automated CI checks for Rust format, Clippy, contract tests, Soroban WASM build, frontend integration, and frontend production build.
 
 Level 4 submission links and files:
 
@@ -121,9 +125,13 @@ Level 4 submission links and files:
 - Contract deployment address: `CDNCS5MQUHT2XAOITMC74U7SKKDHQ4WJMEDNLLKFSMESSOK3SSNNFMWV`
 - Contract Explorer link: <https://stellar.expert/explorer/testnet/contract/CDNCS5MQUHT2XAOITMC74U7SKKDHQ4WJMEDNLLKFSMESSOK3SSNNFMWV>
 - Level 4 checklist: `docs/submission/level4-checklist.md`
+- Level 4 revision response: `LEVEL4_REVISION_RESPONSE.md`
+- Level 4 resubmission evidence: `docs/submission/level4-resubmission-evidence.md`
 - Production ops notes: `docs/submission/level4-production-ops.md`
 - Real wallet interaction template: `docs/submission/level4-user-wallet-interactions.csv`
 - User feedback summary template: `docs/submission/level4-feedback-summary.md`
+- CI/CD workflow: `.github/workflows/deploy-pages.yml`
+- Frontend integration verification: `frontend/scripts/verify-contract-integration.mjs`
 - Product UI screenshot: `docs/screenshots/level4-product-ui.png`
 - Mobile responsive screenshot: `docs/screenshots/level4-mobile-responsive-ui.png`
 - Analytics and monitoring screenshot: `docs/screenshots/level4-analytics-monitoring.png`
