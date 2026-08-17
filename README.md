@@ -152,6 +152,10 @@ Level 5 submission links and files:
 - Google Form setup guide: [docs/submission/level5-google-form-questions.md](docs/submission/level5-google-form-questions.md)
 - Exported Excel feedback workbook: [docs/submission/level5-user-feedback-export.xlsx](docs/submission/level5-user-feedback-export.xlsx)
 - CSV column template: [docs/submission/level5-user-onboarding-template.csv](docs/submission/level5-user-onboarding-template.csv)
+- Growth campaign plan: [docs/submission/level5-growth-campaign-plan.md](docs/submission/level5-growth-campaign-plan.md)
+- User proof review guide: [docs/submission/level5-user-proof-review.md](docs/submission/level5-user-proof-review.md)
+- Feedback analysis guide: [docs/submission/level5-feedback-analysis-guide.md](docs/submission/level5-feedback-analysis-guide.md)
+- Submission manifest: [docs/submission/level5-submission-manifest.md](docs/submission/level5-submission-manifest.md)
 - Feedback iteration summary: [docs/submission/level5-feedback-iteration-summary.md](docs/submission/level5-feedback-iteration-summary.md)
 - Desktop Level 5 screenshot: [docs/screenshots/level5-growth-proof.png](docs/screenshots/level5-growth-proof.png)
 - Level 5 growth panel screenshot: [docs/screenshots/level5-growth-panel.png](docs/screenshots/level5-growth-panel.png)
@@ -159,9 +163,9 @@ Level 5 submission links and files:
 
 Current Level 5 status:
 
-- Meaningful commits: 21 total commits after the Level 5 README update
+- Meaningful commits: 20 Level 5-specific commits on `main` listed in `docs/submission/level5-commit-evidence.md`
 - Validation: `npm run build` passes and `cargo test` passes with 4 contract tests
-- Product improvements: Level 5 growth dashboard, required tester identity fields, wallet-linked feedback, CSV export, updated JSON evidence bundle, Excel workbook, pitch deck, and demo script
+- Product improvements: Level 5 growth dashboard, required tester identity fields, wallet-linked feedback, transaction proof hash/URL validation, readiness metrics, CSV export, updated JSON evidence bundle, Excel workbook, pitch deck, and demo script
 - Published Google Form link: `TODO - create using docs/submission/level5-google-form-questions.md and paste the public form URL here`
 - Demo video link: `TODO - record using docs/demo/level5-demo-script.md and paste the video URL here`
 - Proof of 50+ users: `TODO - replace the workbook with the real Google Form Excel export after 50+ testers submit wallet and transaction proof`
