@@ -10,7 +10,7 @@ This file groups the repository history by bootcamp level so reviewers can see t
 | Level 2 | 1 | Submission evidence and deployed contract proof |
 | Level 3 | 6 | Contract coverage, screenshots, demo video, and August commit evidence |
 | Level 4 | 15 | Telemetry, validation screenshots, CI/CD, frontend integration, resubmission evidence, and proof review guides |
-| Level 5 | 20 | Growth dashboard, onboarding proof, pitch/demo assets, feedback analysis, and commit evidence |
+| Level 5 | 23 | Growth dashboard, onboarding proof, pitch/demo assets, feedback analysis, daily cadence response, and commit evidence |
 
 ## Level 1 Commits
 
@@ -57,13 +57,13 @@ docs/submission/level4-commit-evidence.md
 
 ## Level 5 Commits
 
-Level 5 requires 20+ meaningful commits for the Blue Belt stage. The dedicated evidence file lists those commits with GitHub links:
+Level 5 requires 20+ meaningful commits for the Blue Belt stage. The dedicated evidence file lists those commits with GitHub links and a daily distribution table:
 
 ```text
 docs/submission/level5-commit-evidence.md
 ```
 
-Current Level 5-specific commit count: 20.
+Current Level 5-specific commit count: 23 across 3 active Level 5 commit days.
 
 ## Verification Commands
 
