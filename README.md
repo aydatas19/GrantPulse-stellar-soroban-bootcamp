@@ -164,6 +164,7 @@ Level 5 submission links and files:
 - Demo recording script: [docs/demo/level5-demo-script.md](docs/demo/level5-demo-script.md)
 - Level 5 checklist: [docs/submission/level5-checklist.md](docs/submission/level5-checklist.md)
 - Level 5 commit evidence: [docs/submission/level5-commit-evidence.md](docs/submission/level5-commit-evidence.md)
+- Level 5 daily commit plan: [docs/submission/level5-daily-commit-plan.md](docs/submission/level5-daily-commit-plan.md)
 - Google Form setup guide: [docs/submission/level5-google-form-questions.md](docs/submission/level5-google-form-questions.md)
 - Exported Excel feedback workbook: [docs/submission/level5-user-feedback-export.xlsx](docs/submission/level5-user-feedback-export.xlsx)
 - CSV column template: [docs/submission/level5-user-onboarding-template.csv](docs/submission/level5-user-onboarding-template.csv)
@@ -178,13 +179,14 @@ Level 5 submission links and files:
 
 Current Level 5 status:
 
-- Meaningful commits: 20 Level 5-specific commits on `main` listed in `docs/submission/level5-commit-evidence.md`
+- Meaningful commits: 20+ Level 5-specific commits on `main` listed in `docs/submission/level5-commit-evidence.md`, now with date-aware daily cadence evidence
 - Validation: `npm run build` passes and `cargo test` passes with 4 contract tests
 - Product improvements: Level 5 growth dashboard, required tester identity fields, wallet-linked feedback, transaction proof hash/URL validation, readiness metrics, CSV export, updated JSON evidence bundle, Excel workbook, pitch deck, and demo script
 - Published Google Form link: `TODO - create using docs/submission/level5-google-form-questions.md and paste the public form URL here`
 - Demo video link: `TODO - record using docs/demo/level5-demo-script.md and paste the video URL here`
 - Proof of 50+ users: `TODO - replace the workbook with the real Google Form Excel export after 50+ testers submit wallet and transaction proof`
 - Analytics or transaction activity screenshots: `TODO - add screenshots after the 50-user testnet campaign`
+- Daily commit response: `docs/submission/level5-daily-commit-plan.md` documents the reviewer feedback response and the daily commit rule for new Level 5 work.
 
 Level 5 feedback-driven improvements:
 

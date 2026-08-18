@@ -31,6 +31,14 @@ Use this manifest as the final packaging index before submitting the repository 
 | Demo script | Ready | `docs/demo/level5-demo-script.md` |
 | Final demo video | Needs real recording URL | README TODO |
 
+## Commit Cadence Evidence
+
+| Item | Status | Link Or File |
+| --- | --- | --- |
+| Level 5 commit evidence | Ready | `docs/submission/level5-commit-evidence.md` |
+| Daily commit response plan | Ready | `docs/submission/level5-daily-commit-plan.md` |
+| Date-aware evidence script | Ready | `scripts/level5-commit-evidence.mjs` |
+
 ## Final Blockers
 
 - Publish the Google Form and paste the public form URL into the README.
